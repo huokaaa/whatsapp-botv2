@@ -1,125 +1,131 @@
-# 🤖 NexusBot
+# 🤖 NexusBot — WhatsApp Bot (Baileys)
 
-WhatsApp Bot berbasis [Baileys](https://github.com/WhiskeySockets/Baileys) dengan sistem command modular.
-
----
-
-## ✨ Fitur
-
-- Sistem command modular (tambah command cukup buat file baru di `commands/`)
-- Auto-load semua command dari folder `commands/`
-- Support grup & DM
-- Private mode & toggle on/off
-- Download lagu (YouTube)
-- Lirik lagu
-- Capture View Once media
-- Dan masih banyak lagi...
+Bot WhatsApp modular berbasis Node.js menggunakan library `@whiskeysockets/baileys`.
 
 ---
 
-## 📋 Requirements
+## 📁 Struktur Proyek
 
-- Node.js `v18+`
-- npm
-- VPS / server Linux (atau lokal)
+```
+whatsapp-bot/
+├── index.js                 ← Main file (koneksi + routing)
+├── package.json
+├── .gitignore
+├── auth_info/               ← Dibuat otomatis setelah scan QR (JANGAN dihapus!)
+└── commands/
+    ├── _TEMPLATE.js         ← Template untuk command baru
+    ├── ping.js              ← !ping — cek latensi
+    ├── alive.js             ← !alive — status bot
+    └── menu.js              ← !menu — daftar semua command
+```
 
 ---
 
-## 🚀 Instalasi
+## ⚙️ Requirements
 
-### 1. Clone repo
+| Kebutuhan | Versi Minimum |
+|-----------|--------------|
+| Node.js   | **v18.0.0+** |
+| npm       | v8+          |
 
+Cek versi Node.js kamu:
 ```bash
-git clone https://github.com/USERNAME/REPO_NAME.git
-cd REPO_NAME
+node -v
+```
+
+---
+
+## 🚀 Cara Menjalankan
+
+### 1. Clone / Download project ini
+```bash
+# Kalau dari git:
+git clone <url-repo-kamu>
+cd whatsapp-bot
+
+# Kalau download manual, cukup masuk ke foldernya:
+cd whatsapp-bot
 ```
 
 ### 2. Install dependencies
-
 ```bash
 npm install
 ```
 
-### 3. Konfigurasi
+> Proses ini akan mengunduh `@whiskeysockets/baileys`, `pino`, dan `qrcode-terminal`.
+> Biasanya butuh 1–3 menit tergantung koneksi internet.
 
-Edit file `lib/config.js` sesuai kebutuhan:
-
-```js
-const PREFIX  = "!";
-const BOT_NAME = "NexusBot";
-const OWNER   = ["628xxxxxxxxxx@s.whatsapp.net"];
-```
-
-### 4. Jalankan bot
-
+### 3. Jalankan bot
 ```bash
-node index.js
+npm start
 ```
 
-Scan QR code yang muncul di terminal menggunakan WhatsApp.
+### 4. Scan QR Code
+- QR Code akan muncul di terminal.
+- Buka WhatsApp di HP → **Perangkat Tertaut** → **Tautkan Perangkat** → Scan QR.
+- Setelah berhasil, terminal akan menampilkan pesan **"BERHASIL TERHUBUNG!"**
 
----
-
-## 📁 Struktur Folder
-
+### 5. Test bot
+Kirim pesan ke nomor bot (dari nomor lain):
 ```
-nexusbot/
-├── commands/         # Semua file command (.js)
-├── lib/
-│   ├── config.js     # Konfigurasi PREFIX, BOT_NAME, OWNER
-│   ├── format.js     # Helper formatting pesan
-│   └── http.js       # Helper HTTP request
-├── auth_info/        # Sesi WhatsApp (auto-generated, jangan di-commit)
-├── index.js          # Entry point utama
-├── package.json
-└── README.md
+!ping
+!alive
+!menu
 ```
 
 ---
 
-## ➕ Menambah Command Baru
+## ➕ Cara Menambah Command Baru
 
-Buat file baru di folder `commands/`, contoh `commands/hello.js`:
+1. **Copy file template:**
+   ```bash
+   cp commands/_TEMPLATE.js commands/namacommand.js
+   ```
 
+2. **Edit file tersebut**, ubah bagian `name`, `description`, `category`, dan isi logic di fungsi `run()`.
+
+3. **Restart bot** — command akan otomatis terbaca tanpa perlu daftar di `index.js`.
+
+### Contoh: Membuat command `!halo`
+
+Buat file `commands/halo.js`:
 ```js
 module.exports = {
-  name: "hello",
-  aliases: ["hi"],
-  description: "Sapa pengguna",
-  category: "Utilitas",
+  name: "halo",
+  description: "Balas sapaan",
+  category: "Fun",
 
   async run({ reply, pushName }) {
-    await reply(`Halo, ${pushName}! 👋`);
+    await reply(`Halo juga, ${pushName}! 👋`);
   },
 };
 ```
 
-Bot akan otomatis load command baru tanpa perlu edit file lain.
+Selesai! Setelah restart, `!halo` langsung bisa dipakai.
 
 ---
 
-## 🔧 Menjalankan dengan PM2 (Recommended untuk VPS)
+## 🔄 Restart Otomatis (Opsional)
 
+Pakai `pm2` biar bot otomatis restart kalau crash atau server reboot:
 ```bash
-# Install PM2
 npm install -g pm2
-
-# Jalankan bot
 pm2 start index.js --name nexusbot
-
-# Auto-start saat server reboot
-pm2 startup
 pm2 save
-
-# Cek log
-pm2 logs nexusbot
-
-# Restart
-pm2 restart nexusbot
+pm2 startup
 ```
 
 ---
 
-## 📜 Lisensi
+## ❗ Troubleshooting
 
-MIT
+| Masalah | Solusi |
+|---------|--------|
+| QR tidak muncul | Pastikan terminal mendukung output teks |
+| Logged out tiba-tiba | Hapus folder `auth_info/` lalu restart |
+| Command tidak terbaca | Pastikan file ada properti `name` dan fungsi `run` |
+| Error saat install | Coba `npm install --legacy-peer-deps` |
+
+---
+
+Made with ❤️ by Huoka
